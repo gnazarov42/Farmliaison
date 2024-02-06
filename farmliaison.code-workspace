@@ -1,0 +1,32 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+  "settings": {
+    "workbench.colorCustomizations": {
+      "titleBar.activeForeground": "#fff",
+      "titleBar.inactiveForeground": "#ffffffCC",
+      "titleBar.activeBackground": "#159e00",
+      "titleBar.inactiveBackground": "#159e00"
+    },
+    "editor.fontLigatures": false,
+    "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+    "files.autoSave": "onFocusChange",
+    "editor.tabSize": 2,
+    "editor.detectIndentation": false,
+    "i18n-ally.enabledFrameworks": [
+      "vue"
+    ],
+    "i18n-ally.sortKeys": true,
+    "i18n-ally.keepFulfilled": true,
+    "i18n-ally.keystyle": "flat",
+		"i18n-ally.dirStructure": "auto",
+		"i18n-ally.extract.keyMaxLength": 50,
+    "i18n-ally.sourceLanguage": "en-US",
+		"i18n-ally.localesPaths": [
+			"locales"
+		],
+  }
+}
