@@ -1,0 +1,32 @@
+a {
+  cursor: pointer;
+  color: black;
+
+  &:visited {
+    color: black;
+  }
+
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.q-btn.q-btn--rounded {
+  padding: 10px 24px;
+}
+
+a.q-btn,
+a.q-item {
+  text-decoration: none;
+}
+
+.rounded-card {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.markdown> :first-child {
+  margin-top: 0;
+}

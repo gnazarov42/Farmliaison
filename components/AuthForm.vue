@@ -1,62 +1,66 @@
 <template>
-  <q-card class="mx-auto" style="width: 350px">
+  <q-card class="text-center rounded-card q-pa-lg" style="width: 350px">
+    <h2 class="q-ma-none">{{ $t('log_in_or_sign_up') }}</h2>
+    <div class="text-body1 text-black-olive">
+      {{ $t('lets_get_back_to_the_roots_together') }}
+    </div>
     <q-form class="q-pa-md" @submit.prevent="onSubmit">
-      <q-input
-        v-if="variant === 'REGISTER'"
-        v-model="name"
-        label="Name"
-        required
-        :disable="isLoading"
-      ></q-input>
-      <q-input
-        v-model="email"
-        label="Email"
-        required
-        :disable="isLoading"
-      ></q-input>
-      <q-input
-        v-model="password"
-        label="Password"
-        type="password"
-        required
-        :disable="isLoading"
-      ></q-input>
-
-      <div class="q-mt-md">
-        <q-btn :loading="isLoading" type="submit" full-width>
-          {{ variant === 'LOGIN' ? 'Sign In' : 'Register' }}
-        </q-btn>
-      </div>
-
-      <div class="q-mt-md">
-        Or Continue with:
-
-        <div class="q-my-md row justify-center">
+      <div class="q-mt-none">
+        <div class="q-my-none row justify-center">
           <q-btn
             flat
-            icon="mdi-github"
-            :loading="isLoading"
+            round
+            size="lg"
+            icon="img:/img/icons/facebook.svg"
             @click="socialAction('github')"
           ></q-btn>
           <q-btn
             flat
-            icon="mdi-google"
-            :loading="isLoading"
+            round
+            size="lg"
+            icon="img:/img/icons/google.svg"
+            @click="socialAction('google')"
+          ></q-btn>
+          <q-btn
+            flat
+            round
+            size="lg"
+            icon="img:/img/icons/linkedin.svg"
+            @click="socialAction('google')"
+          ></q-btn>
+          <q-btn
+            flat
+            round
+            size="lg"
+            icon="img:/img/icons/twitter-x.svg"
             @click="socialAction('google')"
           ></q-btn>
         </div>
       </div>
+      <div class="flex row no-wrap justify-center items-center q-mb-md">
+        <hr width="100%" color="black-olive" />
+        <span class="q-px-md">{{ $t('or') }}</span>
+        <hr width="100%" color="black-olive" />
+      </div>
 
-      <div class="row justify-center q-mt-md">
-        <q-btn flat @click="toggleVariant">
-          {{
-            variant === 'REGISTER'
-              ? 'Already have an account?'
-              : 'New to Messenger?'
-          }}
-        </q-btn>
-        <q-btn flat @click="toggleVariant">
-          {{ variant === 'LOGIN' ? 'Register' : 'Login' }}
+      <q-input
+        v-model="email"
+        label="Email"
+        required
+        outlined
+        :rules="[(val) => rules.isValidEmail(val) || $t('invalid_email')]"
+        :disable="isLoading"
+      ></q-input>
+      <div class="q-mt-md">
+        <q-btn
+          rounded
+          color="primary"
+          :loading="isLoading"
+          type="submit"
+          size="lg"
+          class="full-width"
+        >
+          {{ $t('continue') }}
         </q-btn>
       </div>
     </q-form>
@@ -64,74 +68,55 @@
 </template>
 
 <script setup lang="ts">
-const isLoading = ref(false);
-const name = ref('');
-const password = ref('');
-const email = ref('');
+import { useQuasar } from 'quasar';
 
+const $q = useQuasar();
+
+const email = ref('');
+const isLoading = ref(false);
 const { signIn } = useAuth();
 const emit = defineEmits(['success']);
 
-type VARIANT = 'LOGIN' | 'REGISTER';
-const variant = ref<VARIANT>('REGISTER');
-
 const onSubmit = async () => {
-  if (variant.value === 'REGISTER') {
-    try {
-      isLoading.value = true;
-      const { data, error } = await useFetch('/api/auth/register', {
-        method: 'POST',
-        body: {
-          name: name.value,
-          password: password.value,
-          email: email.value,
-        },
+  isLoading.value = true;
+  try {
+    const result = await signIn('email', {
+      email: email.value,
+      redirect: false, // Depends on your auth provider
+    });
+    if (result?.ok && !result.error) {
+      $q.notify({
+        type: 'positive',
+        message: `Check your email for the magic link!`,
       });
-      if (error.value) {
-        console.log(error.value);
-      }
-      if (data.value) {
-        console.log('Successfully Registered');
-        emit('success', data.value); // You can pass any data you want with the event
-      }
-    } catch (error) {
-    } finally {
-      isLoading.value = false;
+      console.log('Check your email for the magic link!');
+      emit('success', result);
+    } else {
+      console.log('Something went wrong');
     }
-  } else {
-    try {
-      isLoading.value = true;
-
-      const result = await signIn('credentials', {
-        password: password.value,
-        email: email.value,
-        redirect: false,
-      });
-      if (result?.ok && !result.error) {
-        console.log('Successfully LoggedIn');
-        emit('success', result);
-      } else {
-        console.log('Something Weent Wrong');
-      }
-    } catch (error) {
-    } finally {
-      isLoading.value = false;
-    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
-const socialAction = async (action: string) => {
+const socialAction = async (provider: string) => {
   isLoading.value = true;
-
-  await signIn(action, { redirect: false });
-};
-const toggleVariant = () => {
-  if (variant.value === 'REGISTER') {
-    variant.value = 'LOGIN';
-  } else {
-    variant.value = 'REGISTER';
+  try {
+    await signIn(provider, { redirect: false });
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+hr {
+  border: none;
+  background-color: unset;
+  border-top: 1px solid $black-olive;
+}
+</style>

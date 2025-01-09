@@ -1,0 +1,34 @@
+<script props>
+  // https://maizzle.com/docs/components/button
+  module.exports = {
+    align: {
+      left: 'text-left',
+      center: 'text-center',
+      right: 'text-right',
+    }[props.align],
+    href: props.href,
+    msoPt: props['mso-pt'] || '16px',
+    msoPb: props['mso-pb'] || '30px',
+    color: props.color || 'white',
+    bgColor: props['bg-color'] || '#4B6700',
+    hoverBgColor: props['hover-bg-color'] || '#3B5600',
+    focusRingColor: props['focus-ring-color'] || '#FFD700',
+  }
+</script>
+
+<div class="{{ align }}">
+  <a attributes href="{{ href }}" class="inline-block bg-primary no-underline text-white px-6 py-3 font-semibold text-sm rounded-full hover:bg-dark-primary focus:ring-2 focus:ring-accent" style="
+      {{ color && `color: ${color};` }}
+      {{ bgColor && `background-color: ${bgColor};` }}
+    ">
+    <outlook>
+      <i class="mso-font-width-[150%]" style="mso-text-raise: {{ msoPb }};" hidden>&emsp;</i>
+    </outlook>
+    <span style="mso-text-raise: {{ msoPt }}">
+      <content />
+    </span>
+    <outlook>
+      <i class="mso-font-width-[150%]" hidden>&emsp;&#8203;</i>
+    </outlook>
+  </a>
+</div>

@@ -7,33 +7,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
 model User {
-  id              String       @id @default(uuid())
-  email           String       @unique
-  password        String?
-  name            String?
-  picture         String?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  phone           String?
-  profileImage    String?
-  username        String?
-  role            String[]     @default(["user"]) @db.VarChar
-  type            String[]     @default(["visitor"]) @db.VarChar
-  emailVerified   DateTime?
-  hashedPassword  String?
-  image           String?
-  accounts        Account[]
-  bookings        Booking[]
-  farm            FarmProfile?
-  favorites       Favorite[]
-  jobs            JobOpening[]
-  like            Like[]
-  MediaFile       MediaFile[]
-  reviewsReceived Review[]     @relation("ReviewedToReview")
-  reviewsGiven    Review[]     @relation("ReviewerToReview")
-  sessions        Session[]
-  tweet           Tweet[]
+  id               String           @id @default(uuid())
+  email            String           @unique
+  name             String?
+  picture          String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  phone            String?
+  profileImage     String?
+  username         String?
+  role             String[]         @default(["user"]) @db.VarChar
+  type             String[]         @default(["visitor"]) @db.VarChar
+  emailVerified    DateTime?
+  image            String?
+  agreedTerms      DateTime?
+  accounts         Account[]
+  bookings         Booking[]
+  farm             FarmProfile?
+  locale           String?
+  description      Json?
+  workerExperience Json?
+  specialties      UserSpecialty[]  @relation(name: "UserToSpecialty")
+  schedule         Schedule[]       @default([])
+  userLanguage     UserLanguage[]
+  favorites        Favorite[]
+  jobs             Job[]
+  like             Like[]
+  mediaFiles       MediaFile[]
+  reviewsReceived  Review[]         @relation("ReviewedUserToReview")
+  reviewsGiven     Review[]         @relation("ReviewerToReview")
+  sessions         Session[]
+  tweet            Tweet[]
+  credits          Int              @default(0)
+  subscription     Subscription?
+  ReportedReview   ReportedReview[]
 
   @@index([id, name, phone])
 }
@@ -85,34 +101,47 @@ model MediaFile {
   updatedAt        DateTime      @updatedAt
   propertyId       String?
   authorId         String
+  metadata         Json?
+  description      String?       @db.VarChar
+  order            Int?          @default(0) @db.SmallInt
   like             Like[]        @relation("MediaLike")
   author           User          @relation(fields: [authorId], references: [id])
   FarmProfile      FarmProfile[] @relation("FarmProfileToMediaFile")
   Product          Product[]     @relation("MediaFileToProduct")
+  Event            Event[]       @relation("MediaFileToEvent")
   Tweet            Tweet[]       @relation("MediaFileToTweet")
 }
 
 model FarmProfile {
-  id            String         @id @default(uuid())
-  userId        String         @unique
-  name          String
-  location      String
-  latitude      Float
-  longitude     Float
-  pictures      String[]
-  createdAt     DateTime       @default(now())
-  email         String?
-  phone         String?
-  description   Json?
-  farmSlug      String         @unique
-  bookings      Booking[]
-  createdEvents Event[]        @relation("CreatedEvents")
-  activities    FarmActivity[]
-  user          User           @relation(fields: [userId], references: [id])
-  favorites     Favorite[]
-  jobs          JobOpening[]
-  products      Product[]
-  mediaFiles    MediaFile[]    @relation("FarmProfileToMediaFile")
+  id                String            @id @default(uuid())
+  userId            String            @unique
+  name              String
+  location          String
+  latitude          Float
+  longitude         Float
+  pictures          String[]
+  createdAt         DateTime          @default(now())
+  email             String?
+  phone             String?
+  description       Json?
+  farmSlug          String            @unique
+  address           String?
+  web               String?
+  updatedAt         DateTime          @updatedAt
+  farmStatus        FarmStatus        @default(FREE)
+  publicationStatus PublicationStatus @default(UNPUBLISHED)
+  metaDescription   Json?
+  bookings          Booking[]
+  createdEvents     Event[]           @relation("CreatedEvents")
+  eventHistories    EventHistory[]
+  activities        FarmActivity[]
+  user              User              @relation(fields: [userId], references: [id])
+  farmerEvents      FarmerEvent[]
+  favorites         Favorite[]
+  jobs              Job[]
+  products          Product[]
+  mediaFiles        MediaFile[]       @relation("FarmProfileToMediaFile")
+  farmReviews       Review[]          @relation("ReviewedFarmToReview")
 
   @@index([id, name, email, phone, location, latitude, longitude])
 }
@@ -134,15 +163,18 @@ model FarmActivity {
 }
 
 model Product {
-  id          String      @id @default(uuid())
-  farmId      String
-  price       Decimal
-  pictures    String[]
-  createdAt   DateTime    @default(now())
-  name        Json
-  description Json?
-  farm        FarmProfile @relation(fields: [farmId], references: [id])
-  mediaFiles  MediaFile[] @relation("MediaFileToProduct")
+  id                String            @id @default(uuid())
+  farmId            String
+  price             Decimal?
+  pictures          String[]
+  createdAt         DateTime          @default(now())
+  name              Json
+  description       Json?
+  currency          String?
+  updatedAt         DateTime          @updatedAt
+  publicationStatus PublicationStatus @default(UNPUBLISHED)
+  farm              FarmProfile       @relation(fields: [farmId], references: [id])
+  mediaFiles        MediaFile[]       @relation("MediaFileToProduct")
 }
 
 model Booking {
@@ -151,56 +183,109 @@ model Booking {
   farmId    String
   date      DateTime
   createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
   farm      FarmProfile @relation(fields: [farmId], references: [id])
   user      User        @relation(fields: [userId], references: [id])
-}
-
-model JobOpening {
-  id          String      @id @default(uuid())
-  farmId      String
-  userId      String?
-  startDate   DateTime?
-  endDate     DateTime?
-  createdAt   DateTime    @default(now())
-  title       Json
-  description Json?
-  farm        FarmProfile @relation(fields: [farmId], references: [id])
-  user        User?       @relation(fields: [userId], references: [id])
 }
 
 model Review {
-  id         String   @id @default(uuid())
-  rating     Int      @default(1)
-  pictures   String[]
-  reviewerId String
-  reviewedId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  content    Json?
-  reviewed   User     @relation("ReviewedToReview", fields: [reviewedId], references: [id])
-  reviewer   User     @relation("ReviewerToReview", fields: [reviewerId], references: [id])
+  id                String            @id @default(uuid())
+  rating            Int               @default(1)
+  pictures          String[]
+  authorId          String
+  reviewedUserId    String?
+  reviewedFarmId    String?
+  reviewedEventId   String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  content           Json?
+  response          Json?
+  publicationStatus PublicationStatus @default(UNPUBLISHED)
+  author            User              @relation("ReviewerToReview", fields: [authorId], references: [id])
+  reviewedUser      User?             @relation("ReviewedUserToReview", fields: [reviewedUserId], references: [id])
+  reviewedFarm      FarmProfile?      @relation("ReviewedFarmToReview", fields: [reviewedFarmId], references: [id])
+  reviewedEvent     Event?            @relation("ReviewedEventToReview", fields: [reviewedEventId], references: [id])
+  ReportedReview    ReportedReview[]
+}
+
+model ReportedReview {
+  id           String   @id @default(uuid())
+  reviewId     String
+  reportedById String
+  reportReason String
+  reportedAt   DateTime @default(now())
+  review       Review   @relation(fields: [reviewId], references: [id])
+  reportedBy   User     @relation(fields: [reportedById], references: [id])
+}
+
+model Subscription {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Event {
-  id            String      @id @default(uuid())
-  date          DateTime
-  location      String
-  latitude      Float
-  longitude     Float
-  creatorFarmId String
-  createdAt     DateTime    @default(now())
-  name          Json
-  description   Json?
-  creatorFarm   FarmProfile @relation("CreatedEvents", fields: [creatorFarmId], references: [id])
+  id                String            @id @default(uuid())
+  date              DateTime
+  location          String
+  latitude          Float
+  longitude         Float
+  creatorFarmId     String
+  createdAt         DateTime          @default(now())
+  description       Json?
+  updatedAt         DateTime          @updatedAt
+  address           String?
+  email             String?
+  isPublic          Boolean           @default(true)
+  phone             String?
+  metaDescription   Json?
+  favorites         Favorite[]
+  publicationStatus PublicationStatus @default(UNPUBLISHED)
+  title             Json
+  creatorFarm       FarmProfile       @relation("CreatedEvents", fields: [creatorFarmId], references: [id])
+  eventHistories    EventHistory[]
+  farmerEvents      FarmerEvent[]
+  mediaFiles        MediaFile[]       @relation("MediaFileToEvent")
+  eventReviews      Review[]          @relation("ReviewedEventToReview")
+
+  @@index([id, creatorFarmId, location, latitude, longitude])
+}
+
+model FarmerEvent {
+  id      String      @id @default(uuid())
+  farmId  String
+  eventId String
+  event   Event       @relation(fields: [eventId], references: [id])
+  farm    FarmProfile @relation(fields: [farmId], references: [id])
+
+  @@index([farmId, eventId])
+}
+
+model EventHistory {
+  id          String      @id @default(uuid())
+  eventId     String
+  farmId      String
+  description Json
+  createdAt   DateTime    @default(now())
+  event       Event       @relation(fields: [eventId], references: [id])
+  farm        FarmProfile @relation(fields: [farmId], references: [id])
+
+  @@index([eventId, farmId, createdAt])
 }
 
 model Favorite {
-  id        String      @id @default(uuid())
+  id        String       @id @default(uuid())
   userId    String
-  farmId    String
-  createdAt DateTime    @default(now())
-  farm      FarmProfile @relation(fields: [farmId], references: [id])
-  user      User        @relation(fields: [userId], references: [id])
+  farmId    String?
+  eventId   String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now())
+  farm      FarmProfile? @relation(fields: [farmId], references: [id])
+  event     Event?       @relation(fields: [eventId], references: [id])
+  user      User         @relation(fields: [userId], references: [id])
 }
 
 model Like {
@@ -209,4 +294,83 @@ model Like {
   userId    String
   user      User      @relation(fields: [userId], references: [id])
   Media     MediaFile @relation("MediaLike", fields: [likableId], references: [id], map: "media_likableId")
+}
+
+model Job {
+  id          String      @id @default(uuid())
+  farmId      String
+  userId      String?
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime    @default(now())
+  title       Json
+  description Json?
+  updatedAt   DateTime    @updatedAt
+  farm        FarmProfile @relation(fields: [farmId], references: [id])
+  User        User?       @relation(fields: [userId], references: [id])
+}
+
+model Language {
+  id           String         @id @default(uuid())
+  code         String         @unique // e.g., 'en', 'es'
+  name         String // e.g., 'English', 'Spanish'
+  userLanguage UserLanguage[]
+
+  @@index([code])
+}
+
+model UserLanguage {
+  id         String   @id @default(uuid())
+  userId     String
+  languageId String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language   Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, languageId])
+}
+
+model Specialty {
+  id    String          @id @default(uuid())
+  name  Json?           @unique // Name of the specialty
+  users UserSpecialty[] @relation(name: "SpecialtyToUser")
+
+  @@index([name])
+}
+
+model UserSpecialty {
+  id          String @id @default(uuid())
+  userId      String
+  specialtyId String
+
+  user      User      @relation(name: "UserToSpecialty", fields: [userId], references: [id], onDelete: Cascade)
+  specialty Specialty @relation(name: "SpecialtyToUser", fields: [specialtyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, specialtyId])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spatial_ref_sys {
+  srid      Int     @id
+  auth_name String? @db.VarChar(256)
+  auth_srid Int?
+  srtext    String? @db.VarChar(2048)
+  proj4text String? @db.VarChar(2048)
+}
+
+enum Schedule {
+  FULL_TIME
+  PART_TIME
+  SEASONAL
+}
+
+enum PublicationStatus {
+  UNPUBLISHED
+  PUBLISHED
+  DELETED
+}
+
+enum FarmStatus {
+  FAKE
+  FREE
+  PRO
 }

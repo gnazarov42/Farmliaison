@@ -1,43 +1,25 @@
 <template>
-  <q-card flat class="bg-transparent">
-    <q-item v-if="data?.user">
-      <q-item-section avatar>
-        <q-avatar>
-          <img
-            :src="
-              data?.user?.profileImage ||
-              'https://cdn.quasar.dev/img/avatar2.jpg'
-            "
-          />
-        </q-avatar>
-      </q-item-section>
-
-      <q-item-section>
-        <q-item-label>{{ data?.user?.name || 'Unknown User' }}</q-item-label>
-        <q-item-label caption>{{ data?.user?.email }}</q-item-label>
-        <nuxt-link :to="`/user/${data?.user.id}`">{{
-          data?.user?.name
-        }}</nuxt-link>
-      </q-item-section>
-      <q-btn color="secondary" label="Logout" @click="logoutUser" />
-    </q-item>
-    <div v-else>
-      <q-btn color="secondary" label="Login" @click="showLoginModal = true" />
-      <q-dialog v-model="showLoginModal" max-width="400px">
-        <AuthForm @success="showLoginModal = false" />
-      </q-dialog>
+  <q-avatar>
+    <NuxtImg
+      v-if="data?.user?.profileImage || data?.user?.image"
+      fit="cover"
+      :src="
+        useImageOptim(
+          data?.user?.profileImage
+            ? data?.user?.profileImage
+            : data?.user?.image,
+          'q_auto,f_auto,c_auto,g_auto,ar_1:1,w_160',
+        )
+      "
+      :ratio="1"
+    />
+    <div v-else class="text-white text-bold">
+      {{ data?.user?.name?.charAt(0) }}
     </div>
-  </q-card>
+  </q-avatar>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-const { data, signOut } = useAuth();
-
-const showLoginModal = ref(false);
-// const user = computed(() => data.value.user);
-
-const logoutUser = async () => {
-  await signOut();
-};
+import { useImageOptim } from '~/composables/useImageOptim';
+const { data } = useAuth();
 </script>

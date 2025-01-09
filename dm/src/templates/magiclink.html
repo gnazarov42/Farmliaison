@@ -1,0 +1,82 @@
+---
+title: "{{ page.t('subject') }}"
+preheader: "{{ page.t('preheader') }}"
+bodyClass: bg-light-cocomilk
+---
+
+<x-main>
+  <div class="bg-light-cocomilk font-sans py-4 px-4 sm:px-6">
+    <table align="center" class="bg-white w-full max-w-[600px] shadow-md">
+      <tr>
+        <td class="w-full max-w-[552px]">
+          <!-- Logo Section -->
+          <x-header />
+          <!-- Email Content Section -->
+          <table class="w-full bg-white rounded-md overflow-hidden border border-darker-cocomilk">
+            <tr>
+              <td class="pt-2 px-4 text-center">
+                <!-- Heading -->
+                <h1 class="text-2xl font-bold text-secondary mb-1 pl-4">
+                  {{ page.t('welcome_back_to_the_countryside') }}<img src="{{page.company.url}}/img/dm/happy-face.png" width="28" class="inline-block ml-1 mb-3" alt="FL">
+                </h1>
+                <!-- Description -->
+                <p class="text-sm text-dark-olive mb-4 leading-6">
+                  {{ page.t('click_the_button_below_to_log_in_to_your_farmliais') }}
+                </p>
+                <!-- Button -->
+                <table class="w-full">
+                  <tr>
+                    <td align="center">
+                      <table>
+                        <tr>
+                          <td><img src="{{page.company.url}}/img/dm/left-palm.png" width="74" class="sm:hidden mr-1" alt="FarmLiaison"></td>
+                          <td><x-button href="@{{magicLink}}">{{ page.t('log_in_to_farmliaison') }}</x-button></td>
+                          <td><img src="{{page.company.url}}/img/dm/right-palm.png" width="74" class="sm:hidden ml-1" alt="FarmLiaison"></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+                <p class="py-2 italic max-w-md mx-auto text-secondary">
+                  {{ page.t('connecting_farms_with_those_who_seek_simplicity_an') }}
+                </p>
+              </td>
+            </tr>
+
+            <!-- Divider -->
+            <tr>
+              <td class="px-6">
+                <hr class="border-t border-darker-cocomilk" />
+              </td>
+            </tr>
+
+            <!-- Footer Section -->
+            <tr>
+              <td class="text-left text-sm text-dark-olive px-6">
+                <p class="my-4 text-xs text-dark-olive">
+
+                  {{ page.t('if_you_received_this_you_tried_to_register') }}
+                </p>
+                <p class="mt-4 text-xs text-dark-olive">
+                  {{ page.t('this_magic_link_is_valid_for_a_limited_time_if_you') }}
+                </p>
+                <p class="mt-4 text-xs text-dark-olive">
+                  {{ page.t('if_the_button_above_doesnt_work') }}<br>
+                  <a href="@{{magicLink}}" class="text-xs text-primary underline hover:no-underline break-all">
+                    @{{magicLink}}
+                  </a>
+                </p>
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="bg-dark-white-sand pb-6">
+          <x-footer />
+        </td>
+      </tr>
+    </table>
+  </div>
+</x-main>

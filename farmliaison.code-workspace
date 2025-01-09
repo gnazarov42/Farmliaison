@@ -8,25 +8,31 @@
     "workbench.colorCustomizations": {
       "titleBar.activeForeground": "#fff",
       "titleBar.inactiveForeground": "#ffffffCC",
-      "titleBar.activeBackground": "#159e00",
-      "titleBar.inactiveBackground": "#159e00"
+      "titleBar.activeBackground": "#0d61004d",
+      "titleBar.inactiveBackground": "#0733008c"
     },
     "editor.fontLigatures": false,
-    "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    },
     "files.autoSave": "onFocusChange",
     "editor.tabSize": 2,
     "editor.detectIndentation": false,
-    "i18n-ally.enabledFrameworks": [
+		"i18n-ally.enabledFrameworks": [
       "vue"
-    ],
-    "i18n-ally.sortKeys": true,
+		],
+    // "i18n-ally.sortKeys": true,
     "i18n-ally.keepFulfilled": true,
     "i18n-ally.keystyle": "flat",
-		"i18n-ally.dirStructure": "auto",
-		"i18n-ally.extract.keyMaxLength": 50,
-    "i18n-ally.sourceLanguage": "en-US",
-		"i18n-ally.localesPaths": [
-			"locales"
-		],
+    "i18n-ally.dirStructure": "file",
+    "i18n-ally.extract.keyMaxLength": 50,
+		"i18n-ally.sourceLanguage": "en-US",
+    "i18n-ally.displayLanguage": "en-US",
+		"i18n-ally.preferredDelimiter": "_",
+		"i18n-ally.extract.ignoredByFiles": {
+			"pages/farm/[farmSlug]/index.vue": [
+				"${currentFarm.value?.name} - FarmLiaison"
+			]
+		},
   }
 }

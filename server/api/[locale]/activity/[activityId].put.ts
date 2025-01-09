@@ -1,5 +1,5 @@
 import { activityFields } from '~/server/transformers/activity';
-import { sanitizeDataForModel } from '~/server/transformers/sanityze';
+import { sanitizeDataForModel } from '~/server/transformers/sanitize';
 import { updateActivity } from '~~/server/db/activity';
 
 export default defineEventHandler(async (event) => {

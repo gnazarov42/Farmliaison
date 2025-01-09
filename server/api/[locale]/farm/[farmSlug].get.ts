@@ -2,7 +2,7 @@
 import { getFarmProfileBySlug } from '~~/server/db/farm';
 
 export default defineEventHandler(async (event) => {
-  const { farmSlug } = event.context.params as Record<string, string>;
+  const { farmSlug, locale } = event.context.params as Record<string, string>;
   if (!farmSlug) {
     throw createError({
       statusCode: 500,
@@ -10,9 +10,15 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const farm = await getFarmProfileBySlug(farmSlug);
+  const farm = await getFarmProfileBySlug(farmSlug, locale);
 
-  return {
-    farm,
-  };
+  // return {
+  //   farm,
+  // };
+
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(farm);
+    }, 0); // delay for testing Remove for production!!!
+  });
 });

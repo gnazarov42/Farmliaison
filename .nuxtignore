@@ -1,0 +1,4 @@
+pages/farm/new.vue
+pages/**/farm/new.vue
+pages/protected.vue
+pages/**/protected.vue

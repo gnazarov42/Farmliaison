@@ -1,0 +1,53 @@
+---
+title: "{{ page.t('message_from') }} @{{senderName}}"
+preheader: "{{ page.t('user_message_to_farmer') }}"
+bodyClass: bg-light-cocomilk
+---
+
+<x-main>
+  <div class="bg-light-cocomilk font-sans py-4 px-4 sm:px-6">
+    <table align="center" class="bg-white w-full max-w-[600px] shadow-md">
+      <tr>
+        <td class="w-full max-w-[552px]">
+          <!-- Logo Section -->
+          <x-header />
+          <!-- Email Content Section -->
+          <table class="w-full">
+            <tr>
+              <td class="px-8 pb-8 sm:px-6 text-base text-dark-olive shadow-sm text-left">
+                <h2 class="text-2xl font-bold text-secondary mb-2">
+                  {{ page.t('greeting') }} @{{farmerName}}, {{ page.t('message_from') }} @{{senderName}}
+                </h2>
+
+                <p class="m-0 leading-6  mb-2">
+                  @{{senderMessage}}
+                </p>
+                <p class="m-0 leading-6">
+                  <strong>{{ page.t('user_name') }}:</strong> @{{senderName}}
+                </p>
+                <p class="m-0 leading-6">
+                  <strong>{{ page.t('user_phone') }}:</strong> @{{senderPhone}}
+                </p>
+                <p class="m-0 leading-6">
+                  <strong>{{ page.t('user_email') }}:</strong> @{{senderEmail}}
+                </p>
+
+                <x-divider space-y="32px" class="bg-slate-200" />
+
+                <p class="m-0 text-center text-gray-500 text-xs">
+                  {{ page.t('enjoy_the_simplicity_and_charm_of_farm_life_with_f') }}
+                </p>
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="bg-dark-white-sand pb-6">
+          <x-footer />
+        </td>
+      </tr>
+    </table>
+  </div>
+</x-main>

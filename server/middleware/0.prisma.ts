@@ -12,5 +12,5 @@ export default eventHandler((event) => {
   if (!prisma) {
     prisma = new PrismaClient();
   }
-  event.context.prisma = prisma;
+  // event.context.prisma = prisma;
 });

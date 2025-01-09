@@ -1,27 +1,28 @@
-import { updateJsonFieldWithTranslation } from './utils'; // Replace with the actual path
+import {
+  updateJsonFieldsWithTranslation,
+  prepareLocalizedJsonUpdate,
+} from './utils';
 import { prisma } from '.';
 
 export const createActivity = async (ActivityData, locale) => {
   try {
+    // Prepare the name with translations for all locales
+    const nameWithTranslations = await prepareLocalizedJsonUpdate(
+      locale,
+      { name: ActivityData.name },
+      {}, // Pass an empty object since this is a new activity
+    );
+
+    // Create the activity with the localized names
     const createdActivity = await prisma.Activity.create({
       data: {
-        name: {
-          [locale]: ActivityData.name, // Initial value for the default locale
-        },
+        name: nameWithTranslations.name,
       },
     });
+
     console.log(
       '🚀 ~ file: activity.js:13 ~ createActivity ~ createdActivity:',
       createdActivity,
-    );
-
-    // Update the name field with translations for each locale
-    updateJsonFieldWithTranslation(
-      'Activity',
-      'name',
-      createdActivity.id,
-      locale,
-      ActivityData.name,
     );
 
     return createdActivity;
@@ -48,9 +49,9 @@ export const getActivityById = (activityId, locale) => {
 
 export const updateActivity = (activityId, updatedData, locale) => {
   try {
-    return (updatedFieldValue = updateJsonFieldWithTranslation(
+    return (updatedFieldValue = updateJsonFieldsWithTranslation(
       'Activity',
-      'name',
+      ['name'],
       activityId,
       locale,
       updatedData,
